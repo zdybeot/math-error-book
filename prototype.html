@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>错题本 - 小学数学</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #FAFAFA;
+    --card: #FFFFFF;
+    --text: #1A1A1A;
+    --text-secondary: #888888;
+    --border: #EEEEEE;
+    --accent: #111111;
+    --accent-light: #F5F5F5;
+    --danger: #E53E3E;
+    --success: #38A169;
+    --warning: #D69E2E;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+    background: #E5E5E5;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: var(--bg);
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .status-bar {
+    height: 54px;
+    background: var(--bg);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 8px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .page {
+    flex: 1;
+    overflow-y: auto;
+    display: none;
+    animation: fade 0.25s ease;
+  }
+  .page.active { display: block; }
+
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
+  /* ===== Nav Header ===== */
+  .nav-header {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--card);
+    flex-shrink: 0;
+  }
+  .nav-header h2 { font-size: 17px; font-weight: 600; flex: 1; }
+  .back-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+  }
+  .nav-action {
+    font-size: 14px;
+    color: var(--text);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  /* ===== Tab Bar ===== */
+  .tab-bar {
+    height: 60px;
+    background: var(--card);
+    display: flex;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: var(--text-secondary);
+    font-size: 10px;
+    cursor: pointer;
+  }
+  .tab.active { color: var(--text); }
+  .tab .tab-icon { font-size: 22px; }
+
+  /* ===== Home ===== */
+  .home-top {
+    padding: 24px 20px 16px;
+  }
+  .home-top h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .home-top p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  .home-stats {
+    display: flex;
+    gap: 1px;
+    background: var(--border);
+    margin: 0 20px 24px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .home-stat {
+    flex: 1;
+    background: var(--card);
+    padding: 16px 12px;
+    text-align: center;
+  }
+  .home-stat .num {
+    font-size: 24px;
+    font-weight: 700;
+  }
+  .home-stat .label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .section-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 0 20px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .error-card {
+    margin: 0 20px 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .error-card:active { background: var(--accent-light); }
+  .error-card .ec-title {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .error-card .ec-meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+  }
+  .status-dot.red { background: var(--danger); }
+  .status-dot.yellow { background: var(--warning); }
+  .status-dot.green { background: var(--success); }
+
+  /* ===== Units Page ===== */
+  .units-page { background: var(--bg); }
+  .units-top {
+    padding: 24px 20px 8px;
+  }
+  .units-top h1 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .units-top p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  .unit-card {
+    margin: 0 20px 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .unit-card:active { background: var(--accent-light); }
+  .unit-header {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .unit-header .unit-num {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .unit-header .unit-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .unit-header .unit-count {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .unit-progress {
+    height: 3px;
+    background: var(--border);
+  }
+  .unit-progress .fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.4s;
+  }
+
+  /* ===== Unit Detail ===== */
+  .unit-detail { background: var(--bg); }
+  .unit-detail-info {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--card);
+  }
+  .unit-detail-info .udi-name {
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .unit-detail-info .udi-stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .tabs-inline {
+    display: flex;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .tab-inline {
+    flex: 1;
+    padding: 14px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-inline.active {
+    color: var(--text);
+    border-bottom-color: var(--text);
+  }
+
+  .detail-section { display: none; }
+  .detail-section.active { display: block; }
+
+  .detail-error {
+    margin: 0 20px 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .detail-error .de-img {
+    width: 100%;
+    height: 140px;
+    background: var(--accent-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .detail-error .de-img .photo-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .detail-error .de-body { padding: 14px 16px; }
+  .detail-error .de-question {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  .detail-error .de-answers {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .detail-error .de-answers .correct { color: var(--success); font-weight: 500; }
+  .detail-error .de-answers .wrong { color: var(--danger); text-decoration: line-through; }
+  .detail-error .de-footer {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .detail-error .de-date { font-size: 12px; color: var(--text-secondary); }
+  .detail-error .de-btn {
+    font-size: 13px;
+    color: var(--text);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+
+  /* ===== Error Detail (Photo + Extract) ===== */
+  .error-detail-img {
+    width: 100%;
+    height: 200px;
+    background: var(--accent-light);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .photo-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    padding: 3px 8px;
+    background: var(--accent-light);
+    border-radius: 4px;
+  }
+  .extract-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    padding: 3px 8px;
+    background: var(--accent-light);
+    border-radius: 4px;
+  }
+  .extract-editable {
+    width: 100%;
+    min-height: 60px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    font-size: 15px;
+    line-height: 1.6;
+    outline: none;
+    background: var(--accent-light);
+    color: var(--text);
+    resize: none;
+    font-family: inherit;
+  }
+  .extract-editable:focus {
+    border-color: var(--text);
+    background: white;
+  }
+  .link-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+  }
+  .link-badge .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--success);
+    display: inline-block;
+  }
+
+  .practice-item {
+    margin: 0 20px 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    cursor: pointer;
+  }
+  .practice-item .pi-type {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .practice-item .pi-question {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .practice-item .pi-meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .start-practice-btn {
+    margin: 16px 20px;
+    padding: 14px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    width: calc(100% - 40px);
+  }
+  .start-practice-btn:active { opacity: 0.85; }
+
+  /* ===== Practice (Generate → Offline → Record) ===== */
+  .practice-page { background: var(--bg); }
+  .practice-body { padding: 20px; }
+  .practice-hint {
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: var(--accent-light);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .gen-q-card {
+    margin-bottom: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    animation: pop 0.3s ease;
+  }
+  .gen-q-card .gq-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .gen-q-card .gq-num {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+  .gen-q-card .gq-type {
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 2px 8px;
+    background: var(--accent-light);
+    border-radius: 4px;
+  }
+  .gen-q-card .gq-question {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .gen-q-card .gq-figure {
+    display: flex;
+    justify-content: center;
+    padding: 16px 0;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .gen-q-card .gq-figure svg {
+    max-width: 100%;
+  }
+  .gen-q-card .gq-answer {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    display: none;
+  }
+  .gen-q-card .gq-answer.show { display: block; }
+  .gen-q-card .gq-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .gen-q-card .gq-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    font-size: 13px;
+    cursor: pointer;
+    text-align: center;
+  }
+  .gen-q-card .gq-btn:active { background: var(--accent-light); }
+  .gen-q-card .gq-btn.marked-correct {
+    background: #F0FFF4;
+    border-color: var(--success);
+    color: var(--success);
+  }
+  .gen-q-card .gq-btn.marked-wrong {
+    background: #FFF5F5;
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+  .gen-q-card .gq-btn.answer-btn {
+    color: var(--text-secondary);
+  }
+
+  /* ===== Result ===== */
+  .result-page { background: var(--bg); }
+  .result-body {
+    text-align: center;
+    padding: 60px 20px 40px;
+  }
+  .result-body .r-score {
+    font-size: 64px;
+    font-weight: 700;
+    letter-spacing: -2px;
+  }
+  .result-body .r-label {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .result-row {
+    display: flex;
+    gap: 1px;
+    background: var(--border);
+    margin: 32px 20px 24px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .result-row .rr {
+    flex: 1;
+    background: var(--card);
+    padding: 20px 12px;
+  }
+  .result-row .rr .rr-num { font-size: 28px; font-weight: 700; }
+  .result-row .rr .rr-label { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .result-btns {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px;
+  }
+  .result-btns button {
+    flex: 1;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .result-btns .rb-primary {
+    background: var(--accent);
+    color: white;
+    border: none;
+  }
+  .result-btns .rb-secondary {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  /* ===== Camera ===== */
+  .camera-page { background: var(--bg); }
+  .camera-view {
+    width: calc(100% - 40px);
+    height: 280px;
+    margin: 20px auto;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+  }
+  .camera-view .cv-icon { font-size: 48px; }
+  .camera-actions {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px;
+  }
+  .camera-actions button {
+    flex: 1;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* ===== Extract ===== */
+  .extract-page { background: var(--bg); }
+  .extract-body { padding: 20px; }
+  .extract-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .extract-card .ex-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .extract-card .ex-question {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .tag-item {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    background: var(--card);
+  }
+  .tag-item.selected {
+    border-color: var(--text);
+    background: var(--accent-light);
+  }
+
+  .save-btn {
+    width: calc(100% - 40px);
+    margin: 0 20px;
+    padding: 14px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ===== Toast ===== */
+  .toast {
+    position: absolute;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .page::-webkit-scrollbar { width: 0; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="status-bar">
+    <span>9:41</span>
+    <span>
+      <span style="margin-right:4px">&#x1F4F6;</span>
+      <span style="margin-right:4px">&#x1F4F6;</span>
+      <span>&#x1F50B;</span>
+    </span>
+  </div>
+
+  <!-- ===== 首页 ===== -->
+  <div id="page-home" class="page active">
+    <div class="home-top">
+      <h1>错题本</h1>
+      <p>四年级下 · 人教版</p>
+    </div>
+    <div class="home-stats">
+      <div class="home-stat"><div class="num">12</div><div class="label">错题总数</div></div>
+      <div class="home-stat"><div class="num" style="color:var(--success)">5</div><div class="label">已掌握</div></div>
+      <div class="home-stat"><div class="num" style="color:var(--danger)">7</div><div class="label">未掌握</div></div>
+    </div>
+    <div class="section-label">最近添加</div>
+    <div class="error-card" onclick="showPage('detail')">
+      <div class="ec-title">3.26 x 48 = 15,448</div>
+      <div class="ec-meta">
+        <span class="status-dot red"></span>未掌握
+        <span>乘法运算</span>
+        <span>今天</span>
+      </div>
+    </div>
+    <div class="error-card" onclick="showPage('detail')">
+      <div class="ec-title">水池进水排水问题</div>
+      <div class="ec-meta">
+        <span class="status-dot yellow"></span>练习中
+        <span>小数加减</span>
+        <span>昨天</span>
+      </div>
+    </div>
+    <div class="error-card" onclick="showPage('detail')">
+      <div class="ec-title">三角形内角和计算</div>
+      <div class="ec-meta">
+        <span class="status-dot green"></span>已掌握
+        <span>三角形</span>
+        <span>前天</span>
+      </div>
+    </div>
+    <div class="error-card" onclick="showPage('detail')">
+      <div class="ec-title">鸡兔同笼：头35个，脚94只</div>
+      <div class="ec-meta">
+        <span class="status-dot red"></span>未掌握
+        <span>鸡兔同笼</span>
+        <span>3天前</span>
+      </div>
+    </div>
+    <div style="height:20px"></div>
+  </div>
+
+  <!-- ===== 单元列表页 ===== -->
+  <div id="page-units" class="page units-page">
+    <div class="units-top">
+      <h1>单元</h1>
+      <p>四年级下册 · 人教版</p>
+    </div>
+    <div class="unit-card" onclick="showUnitDetail(0)">
+      <div class="unit-header">
+        <div><div class="unit-num">第一单元</div><div class="unit-name">四则运算</div></div>
+        <div class="unit-count">2题</div>
+      </div>
+      <div class="unit-progress"><div class="fill" style="width:50%"></div></div>
+    </div>
+    <div class="unit-card" onclick="showUnitDetail(1)">
+      <div class="unit-header">
+        <div><div class="unit-num">第二单元</div><div class="unit-name">观察物体（二）</div></div>
+        <div class="unit-count">0题</div>
+      </div>
+      <div class="unit-progress"><div class="fill" style="width:0%"></div></div>
+    </div>
+    <div class="unit-card" onclick="showUnitDetail(2)">
+      <div class="unit-header">
+        <div><div class="unit-num">第三单元</div><div class="unit-name">运算定律与简便计算</div></div>
+        <div class="unit-count">3题</div>
+      </div>
+      <div class="unit-progress"><div class="fill" style="width:33%"></div></div>
+    </div>
+    <div class="unit-card" onclick="showUnitDetail(3)">
+      <div class="unit-header">
+        <div><div class="unit-num">第四单元</div><div class="unit-name">小数的意义和性质</div></div>
+        <div class="unit-count">1题</div>
+      </div>
+      <div class="unit-progress"><div class="fill" style="width:100%"></div></div>
+    </div>
+    <div class="unit-card" onclick="showUnitDetail(4)">
+      <div class="unit-header">
+        <div><div class="unit-num">第五单元</div><div class="unit-name">三角形</div></div>
+        <div class="unit-count">3题</div>
+      </div>
+      <div class="unit-progress"><div class="fill" style="width:67%"></div></div>
+    </div>
+    <div class="unit-card" onclick="showUnitDetail(5)">
+      <div class="unit-header">
+        <div><div class="unit-num">第六单元</div><div class="unit-name">小数的加法和减法</div></div>
+        <div class="unit-count">2题</div>
+      </div>
+      <div class="unit-progress"><div class="fill" style="width:50%"></div></div>
+    </div>
+    <div class="unit-card" onclick="showUnitDetail(6)">
+      <div class="unit-header">
+        <div><div class="unit-num">第七单元</div><div class="unit-name">图形的运动（二）</div></div>
+        <div class="unit-count">0题</div>
+      </div>
+      <div class="unit-progress"><div class="fill" style="width:0%"></div></div>
+    </div>
+    <div class="unit-card" onclick="showUnitDetail(7)">
+      <div class="unit-header">
+        <div><div class="unit-num">第八单元</div><div class="unit-name">平均数与条形统计图</div></div>
+        <div class="unit-count">1题</div>
+      </div>
+      <div class="unit-progress"><div class="fill" style="width:0%"></div></div>
+    </div>
+    <div class="unit-card" onclick="showUnitDetail(8)">
+      <div class="unit-header">
+        <div><div class="unit-num">第九单元</div><div class="unit-name">数学广角 —— 鸡兔同笼</div></div>
+        <div class="unit-count">2题</div>
+      </div>
+      <div class="unit-progress"><div class="fill" style="width:0%"></div></div>
+    </div>
+    <div style="height:20px"></div>
+  </div>
+
+  <!-- ===== 单元详情页 ===== -->
+  <div id="page-unit-detail" class="page unit-detail">
+    <div class="nav-header">
+      <button class="back-btn" onclick="showPage('units')">&#x276E;</button>
+      <h2 id="udi-title">第一单元 · 四则运算</h2>
+    </div>
+    <div class="unit-detail-info">
+      <div class="udi-name" id="udi-name">四则运算</div>
+      <div class="udi-stats">
+        <span>错题 <strong id="udi-count">2</strong> 道</span>
+        <span>已掌握 <strong id="udi-mastered">1</strong> 道</span>
+        <span>掌握率 <strong id="udi-rate">50%</strong></span>
+      </div>
+    </div>
+    <div class="tabs-inline">
+      <div class="tab-inline active" onclick="switchDetailTab(0)">错题汇总</div>
+      <div class="tab-inline" onclick="switchDetailTab(1)">延伸练习</div>
+    </div>
+
+    <!-- 错题汇总 -->
+    <div id="detail-errors" class="detail-section active">
+      <div class="detail-error">
+        <div class="de-img">
+          <span class="photo-badge">&#x1F4F7; 原始照片</span>
+          &#x1F4F7;
+        </div>
+        <div class="de-body">
+          <div class="de-question">计算：(240 + 360) / 15 x 4 = ?</div>
+          <div class="de-answers">
+            你的答案：<span class="wrong">160</span><br>
+            正确答案：<span class="correct">160</span>（计算过程中漏了一步）
+          </div>
+          <div class="link-badge"><span class="dot"></span> 已关联原始照片，可点击查看大图</div>
+        </div>
+        <div class="de-footer">
+          <span class="de-date">2026-04-12</span>
+          <button class="de-btn" onclick="showPage('detail')">查看详情</button>
+        </div>
+      </div>
+      <div class="detail-error">
+        <div class="de-img">
+          <span class="photo-badge">&#x1F4F7; 原始照片</span>
+          &#x1F4F7;
+        </div>
+        <div class="de-body">
+          <div class="de-question">小明有 48 元钱，买文具用了 1/3，买书用了剩下的 1/4，还剩多少钱？</div>
+          <div class="de-answers">
+            你的答案：<span class="wrong">24 元</span><br>
+            正确答案：<span class="correct">24 元</span>（分步计算有误）
+          </div>
+          <div class="link-badge"><span class="dot"></span> 已关联原始照片，可点击查看大图</div>
+        </div>
+        <div class="de-footer">
+          <span class="de-date">2026-04-10</span>
+          <button class="de-btn" onclick="showPage('detail')">查看详情</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 延伸练习 -->
+    <div id="detail-practice" class="detail-section">
+      <div class="practice-item" onclick="startPracticeFromUnit()">
+        <div class="pi-type">基于错题 1 延伸</div>
+        <div class="pi-question">计算：(360 + 240) / 12 x 5 = ?</div>
+        <div class="pi-meta">同类题型 · 四则混合运算</div>
+      </div>
+      <div class="practice-item" onclick="startPracticeFromUnit()">
+        <div class="pi-type">基于错题 1 延伸</div>
+        <div class="pi-question">计算：(500 - 180) / 8 x 3 = ?</div>
+        <div class="pi-meta">同类题型 · 四则混合运算</div>
+      </div>
+      <div class="practice-item" onclick="startPracticeFromUnit()">
+        <div class="pi-type">基于错题 2 延伸</div>
+        <div class="pi-question">小红有 60 元，买零食花了 2/5，买文具花了剩下的 1/3，还剩多少？</div>
+        <div class="pi-meta">同类题型 · 分数应用</div>
+      </div>
+      <div class="practice-item" onclick="startPracticeFromUnit()">
+        <div class="pi-type">综合练习</div>
+        <div class="pi-question">计算：36 x 4 + (280 - 120) / 8 = ?</div>
+        <div class="pi-meta">综合题 · 四则运算</div>
+      </div>
+      <button class="start-practice-btn" onclick="startPracticeFromUnit()">开始练习（5题）</button>
+    </div>
+  </div>
+
+  <!-- ===== 错题详情页 ===== -->
+  <div id="page-detail" class="page extract-page">
+    <div class="nav-header">
+      <button class="back-btn" onclick="showPage('home')">&#x276E;</button>
+      <h2>错题详情</h2>
+      <button class="nav-action" onclick="showToast('编辑模式')">编辑</button>
+    </div>
+    <div class="extract-body">
+      <div class="extract-card">
+        <div class="photo-label">&#x1F4F7; 原始照片</div>
+        <div class="error-detail-img">&#x1F4F7; 点击放大查看</div>
+        <div class="link-badge" style="margin-top:8px"><span class="dot"></span> 此照片与下方提取内容已关联</div>
+      </div>
+      <div class="extract-card">
+        <div class="extract-label">&#x1F4DD; 提取题目（可编辑）</div>
+        <textarea class="extract-editable" rows="2">计算：(240 + 360) / 15 x 4 = ?</textarea>
+      </div>
+      <div class="extract-card">
+        <div class="extract-label">&#x270F; 答案与解析</div>
+        <div style="font-size:14px;line-height:1.8">
+          你的答案：<span style="color:var(--danger)">160</span><br>
+          正确答案：<span style="color:var(--success)">160</span><br>
+          <span style="color:var(--text-secondary)">错误原因：运算顺序错误，应该先算括号内再依次计算</span>
+        </div>
+      </div>
+      <div class="extract-card">
+        <div class="extract-label">&#x1F4A1; 解题步骤</div>
+        <div style="font-size:14px;line-height:1.8;color:var(--text-secondary)">
+          1. 先算括号：240 + 360 = 600<br>
+          2. 再算除法：600 / 15 = 40<br>
+          3. 最后乘法：40 x 4 = 160
+        </div>
+      </div>
+      <button class="start-practice-btn" onclick="showPage('practice-setup')" style="margin:16px 0 0">延伸练习</button>
+    </div>
+  </div>
+
+  <!-- ===== 练习出题设置 ===== -->
+  <div id="page-practice-setup" class="page extract-page">
+    <div class="nav-header">
+      <button class="back-btn" onclick="showPage('unit-detail')">&#x276E;</button>
+      <h2>练习出题</h2>
+    </div>
+    <div class="extract-body">
+      <div class="extract-card">
+        <div class="ex-label">练习范围</div>
+        <div style="font-size:14px;margin-top:4px" id="practice-scope-label">四则混合运算</div>
+      </div>
+      <div class="extract-card">
+        <div class="ex-label">出题数量</div>
+        <div class="tag-row" style="margin-top:8px;margin-bottom:0">
+          <div class="tag-item selected" onclick="selectTag(this)">3题</div>
+          <div class="tag-item" onclick="selectTag(this)">5题</div>
+          <div class="tag-item" onclick="selectTag(this)">10题</div>
+        </div>
+      </div>
+      <div class="extract-card">
+        <div class="ex-label">题型偏好</div>
+        <div class="tag-row" style="margin-top:8px;margin-bottom:0">
+          <div class="tag-item selected" onclick="selectTag(this)">混合出题</div>
+          <div class="tag-item" onclick="selectTag(this)">仅计算题</div>
+          <div class="tag-item" onclick="selectTag(this)">仅应用题</div>
+        </div>
+      </div>
+      <button class="start-practice-btn" onclick="startPractice()">生成题目</button>
+    </div>
+  </div>
+
+  <!-- ===== 练习出题页 ===== -->
+  <div id="page-practice" class="page practice-page">
+    <div class="nav-header">
+      <button class="back-btn" onclick="showPage('unit-detail')">&#x276E;</button>
+      <h2 id="practice-title">四则运算 · 延伸练习</h2>
+    </div>
+    <div class="practice-body">
+      <div class="practice-hint">
+        以下题目请在纸上完成后，对照答案标记结果。<br>做完后可点击查看答案。
+      </div>
+      <div id="generated-questions"></div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="start-practice-btn" onclick="showAnswers()" style="flex:1;margin:0">查看答案</button>
+        <button class="start-practice-btn" onclick="finishPractice()" style="flex:1;margin:0">记录结果</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 结果页 ===== -->
+  <div id="page-result" class="page result-page">
+    <div class="nav-header">
+      <button class="back-btn" onclick="showPage('unit-detail')">&#x276E;</button>
+      <h2>练习记录</h2>
+    </div>
+    <div class="result-body">
+      <div class="r-score" id="r-score">80</div>
+      <div class="r-label">正确率</div>
+    </div>
+    <div class="result-row">
+      <div class="rr"><div class="rr-num" style="color:var(--success)" id="r-correct">4</div><div class="rr-label">答对</div></div>
+      <div class="rr"><div class="rr-num" style="color:var(--danger)" id="r-wrong">1</div><div class="rr-label">答错</div></div>
+      <div class="rr"><div class="rr-num" id="r-time">5题</div><div class="rr-label">共练习</div></div>
+    </div>
+    <div class="result-btns">
+      <button class="rb-secondary" onclick="showPage('unit-detail')">返回单元</button>
+      <button class="rb-primary" onclick="showPage('practice')">再出一组</button>
+    </div>
+  </div>
+
+  <!-- ===== 拍照收集 ===== -->
+  <div id="page-camera" class="page camera-page">
+    <div class="nav-header">
+      <button class="back-btn" onclick="showPage('home')">&#x276E;</button>
+      <h2>收集错题</h2>
+    </div>
+    <div class="camera-view" onclick="simulateCapture()">
+      <div class="cv-icon">&#x1F4F7;</div>
+      <div>拍照或选择照片</div>
+    </div>
+    <div class="camera-actions">
+      <button onclick="simulateCapture()">拍照</button>
+      <button onclick="simulateCapture()">相册</button>
+      <button onclick="simulateCapture()">手动输入</button>
+    </div>
+  </div>
+
+  <!-- ===== 识别结果 ===== -->
+  <div id="page-extract" class="page extract-page">
+    <div class="nav-header">
+      <button class="back-btn" onclick="showPage('home')">&#x276E;</button>
+      <h2>识别结果</h2>
+    </div>
+    <div class="extract-body">
+      <div class="extract-card">
+        <div class="photo-label">&#x1F4F7; 原始照片</div>
+        <div style="width:100%;height:180px;background:var(--accent-light);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);margin-bottom:4px">&#x1F4F7; 点击可放大查看</div>
+      </div>
+      <div class="extract-card">
+        <div class="extract-label">&#x1F4DD; 识别结果（可编辑校正）</div>
+        <textarea class="extract-editable" rows="3">计算：326 x 48 = ?</textarea>
+        <div class="link-badge"><span class="dot"></span> 提取内容已关联上方照片</div>
+      </div>
+      <div class="extract-card">
+        <div class="ex-label">选择所属单元</div>
+        <div class="tag-row" style="margin-top:8px;margin-bottom:0">
+          <div class="tag-item selected" onclick="selectTag(this)">四则运算</div>
+          <div class="tag-item" onclick="selectTag(this)">运算定律</div>
+          <div class="tag-item" onclick="selectTag(this)">小数性质</div>
+          <div class="tag-item" onclick="selectTag(this)">三角形</div>
+          <div class="tag-item" onclick="selectTag(this)">小数加减</div>
+          <div class="tag-item" onclick="selectTag(this)">鸡兔同笼</div>
+        </div>
+      </div>
+      <button class="save-btn" onclick="saveError()">保存</button>
+    </div>
+  </div>
+
+  <!-- ===== Tab Bar ===== -->
+  <div class="tab-bar" id="tab-bar">
+    <div class="tab active" onclick="switchTab('home')">
+      <div class="tab-icon">&#x1F4D6;</div>
+      <div>首页</div>
+    </div>
+    <div class="tab" onclick="switchTab('units')">
+      <div class="tab-icon">&#x1F4CB;</div>
+      <div>错题本</div>
+    </div>
+    <div class="tab" onclick="showPage('camera')">
+      <div class="tab-icon" style="font-size:28px">&#x2795;</div>
+      <div>添加</div>
+    </div>
+    <div class="tab" onclick="showToast('练习中心开发中')">
+      <div class="tab-icon">&#x270F;</div>
+      <div>练习</div>
+    </div>
+    <div class="tab" onclick="showToast('我的开发中')">
+      <div class="tab-icon">&#x1F464;</div>
+      <div>我的</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ===== 数据 =====
+const units = [
+  { num: '第一单元', name: '四则运算', count: 2, mastered: 1, rate: 50 },
+  { num: '第二单元', name: '观察物体（二）', count: 0, mastered: 0, rate: 0 },
+  { num: '第三单元', name: '运算定律与简便计算', count: 3, mastered: 1, rate: 33 },
+  { num: '第四单元', name: '小数的意义和性质', count: 1, mastered: 1, rate: 100 },
+  { num: '第五单元', name: '三角形', count: 3, mastered: 2, rate: 67 },
+  { num: '第六单元', name: '小数的加法和减法', count: 2, mastered: 1, rate: 50 },
+  { num: '第七单元', name: '图形的运动（二）', count: 0, mastered: 0, rate: 0 },
+  { num: '第八单元', name: '平均数与条形统计图', count: 1, mastered: 0, rate: 0 },
+  { num: '第九单元', name: '数学广角 —— 鸡兔同笼', count: 2, mastered: 0, rate: 0 },
+];
+
+
+// ===== 页面控制 =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('page-' + id);
+  if (el) el.classList.add('active');
+
+  const tabBar = document.getElementById('tab-bar');
+  if (['camera', 'extract', 'practice', 'result', 'detail', 'practice-setup', 'unit-detail'].includes(id)) {
+    tabBar.style.display = 'none';
+  } else {
+    tabBar.style.display = 'flex';
+  }
+  if (id === 'home') updateTab(0);
+  else if (id === 'units') updateTab(1);
+}
+
+function switchTab(tab) {
+  const pages = ['home', 'units', null, null, null];
+  if (pages[tab]) showPage(pages[tab]);
+}
+
+function updateTab(idx) {
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1500);
+}
+
+// ===== 单元详情 =====
+let currentUnit = 0;
+
+function showUnitDetail(idx) {
+  currentUnit = idx;
+  const u = units[idx];
+  document.getElementById('udi-title').textContent = u.num + ' · ' + u.name;
+  document.getElementById('udi-name').textContent = u.name;
+  document.getElementById('udi-count').textContent = u.count;
+  document.getElementById('udi-mastered').textContent = u.mastered;
+  document.getElementById('udi-rate').textContent = u.rate + '%';
+  switchDetailTab(0);
+  showPage('unit-detail');
+}
+
+function switchDetailTab(idx) {
+  document.querySelectorAll('.tab-inline').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.querySelectorAll('.detail-section').forEach((s, i) => s.classList.toggle('active', i === idx));
+}
+
+// ===== 标签选择 =====
+function selectTag(el) {
+  el.parentElement.querySelectorAll('.tag-item').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ===== 拍照模拟 =====
+function simulateCapture() {
+  showToast('识别中...');
+  setTimeout(() => showPage('extract'), 800);
+}
+
+function saveError() {
+  showToast('已保存');
+  setTimeout(() => showPage('home'), 500);
+}
+
+// ===== 练习（出题 → 线下做 → 记录结果）=====
+let genQuestions = [];
+let markedResults = {};
+
+const allPracticeData = {
+  0: [
+    { q: '计算：(360 + 240) / 12 x 5 = ?', answer: '250', type: '计算题' },
+    { q: '计算：(500 - 180) / 8 x 3 = ?', answer: '120', type: '计算题' },
+    { q: '计算：24 x 5 + (360 - 120) / 6 = ?', answer: '160', type: '计算题' },
+    { q: '计算：(720 / 9 + 80) x 2 = ?', answer: '320', type: '计算题' },
+    { q: '小明有 60 元，花了 1/4 买书，又用剩下钱的 1/3 买笔，还剩多少？', answer: '30元', type: '应用题' },
+    { q: '一辆汽车每小时行45千米，行了3小时后，又行了全程的1/3，全程多少千米？', answer: '180千米', type: '应用题' },
+    { q: '计算：(480 + 320) / 16 x 7 = ?', answer: '350', type: '计算题' },
+    { q: '工厂生产一批零件，第一天生产了总数的1/5，第二天生产了剩下的1/4，还剩240个，这批零件共多少个？', answer: '400个', type: '应用题' },
+    { q: '计算：15 x 8 + (640 - 280) / 9 = ?', answer: '160', type: '计算题' },
+    { q: '小红有96元，先花了1/3买书，又用剩下的1/4买文具，还剩多少？', answer: '48元', type: '应用题' },
+  ],
+  2: [
+    { q: '用简便方法计算：25 x 37 x 4 = ?', answer: '3,700', type: '计算题' },
+    { q: '用简便方法计算：125 x 32 = ?', answer: '4,000', type: '计算题' },
+    { q: '用简便方法计算：99 x 45 + 45 = ?', answer: '4,500', type: '计算题' },
+    { q: '用简便方法计算：36 x 101 = ?', answer: '3,636', type: '计算题' },
+    { q: '用简便方法计算：270 / 6 / 5 = ?', answer: '9', type: '计算题' },
+    { q: '用简便方法计算：48 x 25 = ?', answer: '1,200', type: '计算题' },
+    { q: '用简便方法计算：72 x 125 = ?', answer: '9,000', type: '计算题' },
+    { q: '用简便方法计算：560 / 7 / 8 = ?', answer: '10', type: '计算题' },
+  ],
+  3: [
+    { q: '把 0.356 扩大到原来的 100 倍是多少？', answer: '35.6', type: '填空题' },
+    { q: '0.7 和 0.70 的大小关系是什么？', answer: '相等', type: '填空题' },
+    { q: '5.08 中的"8"表示什么？', answer: '8个百分之一', type: '填空题' },
+    { q: '把 3.2 改写成三位小数', answer: '3.200', type: '填空题' },
+    { q: '比 2.5 大且比 2.6 小的小数有多少个？', answer: '无数个', type: '填空题' },
+    { q: '3.06 千克 = ____ 克', answer: '3,060克', type: '填空题' },
+  ],
+  4: [
+    { q: '三角形三个内角的度数比是 2:3:4，最大角是多少度？', answer: '80度', type: '计算题' },
+    { q: '一个等腰三角形，底角是 35 度，顶角是多少度？', answer: '110度', type: '计算题', svg: 'isosceles' },
+    { q: '以下哪组线段能组成三角形：A. 3,4,8  B. 5,6,10  C. 2,3,5  D. 1,2,4', answer: 'B', type: '选择题' },
+    { q: '三角形的内角和是多少度？', answer: '180度', type: '填空题' },
+    { q: '一个三角形有两条边分别是 5cm 和 8cm，第三条边可能是多少？（写出一个即可）', answer: '4cm（大于3小于13均可）', type: '填空题' },
+    { q: '如图，已知直角三角形的一个锐角是 35 度，另一个锐角 ∠A 是多少度？', answer: '55度', type: '计算题', svg: 'rightTriangle' },
+    { q: '如图，画出一个等边三角形，它有几条对称轴？', answer: '3条', type: '填空题', svg: 'equilateral' },
+  ],
+  5: [
+    { q: '计算：3.45 + 2.78 = ?', answer: '6.23', type: '计算题' },
+    { q: '计算：7.2 - 3.56 = ?', answer: '3.64', type: '计算题' },
+    { q: '计算：12.5 + 8.75 = ?', answer: '21.25', type: '计算题' },
+    { q: '水池里有水 4.5 吨，排出 1.86 吨后又流入 2.3 吨，现在有多少吨水？', answer: '4.94吨', type: '应用题' },
+    { q: '一根绳子长 15.6 米，第一次用去 4.35 米，第二次用去 5.8 米，还剩多少米？', answer: '5.45米', type: '应用题' },
+    { q: '妈妈买菜花了 23.5 元，买肉花了 38.8 元，给了 100 元，应找回多少？', answer: '37.7元', type: '应用题' },
+  ],
+  8: [
+    { q: '笼子里有鸡和兔共 20 个头，56 只脚，鸡有几只？', answer: '12只', type: '应用题' },
+    { q: '停车场有自行车和三轮车共 15 辆，车轮共 38 个，三轮车有几辆？', answer: '8辆', type: '应用题' },
+    { q: '鸡兔同笼，头 35 个，脚 94 只，兔有几只？', answer: '12只', type: '应用题' },
+    { q: '蜘蛛和蛐蛐共 10 只，腿共 68 条，蜘蛛有几只？（蜘蛛8条腿，蛐蛐6条腿）', answer: '4只', type: '应用题' },
+    { q: '全班 42 人去划船，大船坐 6 人，小船坐 4 人，共租 9 条船，大船几条？', answer: '3条', type: '应用题' },
+    { q: '有 28 人去住店，大房间住 4 人，小房间住 3 人，共租 8 间房，大房间几间？', answer: '4间', type: '应用题' },
+  ],
+};
+
+function startPractice() {
+  genQuestions = [];
+  markedResults = {};
+  const u = units[currentUnit];
+  document.getElementById('practice-title').textContent = u.name + ' · 延伸练习';
+  document.getElementById('practice-scope-label').textContent = u.name;
+
+  const pool = allPracticeData[currentUnit] || allPracticeData[0];
+  // Shuffle and pick 5
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  genQuestions = shuffled.slice(0, 5);
+
+  renderGenQuestions();
+  showPage('practice');
+}
+
+function startPracticeFromUnit() {
+  startPractice();
+}
+
+function renderGenQuestions() {
+  const container = document.getElementById('generated-questions');
+  const figureSVGs = {
+    isosceles: `<svg width="160" height="120" viewBox="0 0 160 120">
+      <polygon points="80,10 20,110 140,110" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+      <text x="75" y="108" font-size="12" fill="#888">35°</text>
+      <text x="85" y="108" font-size="12" fill="#888">35°</text>
+      <text x="76" y="40" font-size="12" fill="#888">?</text>
+      <line x1="50" y1="110" x2="60" y2="100" stroke="#888" stroke-width="1"/>
+      <line x1="110" y1="110" x2="100" y2="100" stroke="#888" stroke-width="1"/>
+    </svg>`,
+    rightTriangle: `<svg width="160" height="120" viewBox="0 0 160 120">
+      <polygon points="20,110 20,20 150,110" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+      <rect x="20" y="95" width="15" height="15" stroke="#1a1a1a" stroke-width="1.5" fill="none"/>
+      <text x="28" y="40" font-size="13" fill="#1a1a1a">35°</text>
+      <text x="28" y="85" font-size="13" fill="#E53E3E">∠A=?</text>
+    </svg>`,
+    equilateral: `<svg width="160" height="120" viewBox="0 0 160 120">
+      <polygon points="80,10 15,110 145,110" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+      <text x="72" y="45" font-size="11" fill="#888">等边</text>
+      <line x1="40" y1="105" x2="48" y2="105" stroke="#888" stroke-width="1.5"/>
+      <line x1="112" y1="105" x2="120" y2="105" stroke="#888" stroke-width="1.5"/>
+      <line x1="76" y1="55" x2="84" y2="55" stroke="#888" stroke-width="1.5" transform="rotate(-60, 80, 60)"/>
+    </svg>`,
+  };
+
+  container.innerHTML = genQuestions.map((q, i) => {
+    const figure = q.svg && figureSVGs[q.svg]
+      ? `<div class="gq-figure">${figureSVGs[q.svg]}</div>`
+      : '';
+    return `
+    <div class="gen-q-card" id="gq-${i}">
+      <div class="gq-header">
+        <span class="gq-num">第 ${i + 1} 题</span>
+        <span class="gq-type">${q.type}</span>
+      </div>
+      <div class="gq-question">${q.q}</div>
+      ${figure}
+      <div class="gq-answer" id="gq-answer-${i}">
+        答案：<strong>${q.answer}</strong>
+      </div>
+      <div class="gq-actions">
+        <button class="gq-btn marked-correct" onclick="markQ(${i}, 'correct', this)" style="opacity:0.4">✔ 做对了</button>
+        <button class="gq-btn marked-wrong" onclick="markQ(${i}, 'wrong', this)" style="opacity:0.4">✘ 做错了</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function showAnswers() {
+  genQuestions.forEach((_, i) => {
+    document.getElementById('gq-answer-' + i).classList.add('show');
+  });
+  // Enable the mark buttons
+  document.querySelectorAll('.gq-btn').forEach(btn => {
+    btn.style.opacity = '1';
+  });
+  showToast('答案已显示，请对照标记结果');
+}
+
+function markQ(idx, result, btn) {
+  // Clear previous marks for this question
+  const card = document.getElementById('gq-' + idx);
+  card.querySelectorAll('.gq-btn').forEach(b => {
+    b.classList.remove('marked-correct', 'marked-wrong');
+    b.style.opacity = '0.4';
+  });
+  // Set new mark
+  btn.classList.add(result === 'correct' ? 'marked-correct' : 'marked-wrong');
+  btn.style.opacity = '1';
+  markedResults[idx] = result;
+}
+
+function finishPractice() {
+  const total = genQuestions.length;
+  let c = 0, w = 0;
+  for (const k in markedResults) {
+    if (markedResults[k] === 'correct') c++;
+    else w++;
+  }
+  const rate = total > 0 ? Math.round(c / total * 100) : 0;
+
+  document.getElementById('r-score').textContent = rate;
+  document.getElementById('r-correct').textContent = c;
+  document.getElementById('r-wrong').textContent = w;
+  document.getElementById('r-time').textContent = total + '题';
+  showPage('result');
+}
+
+function confirmExit() {
+  if (confirm('确定退出？')) showPage('unit-detail');
+}
+</script>
+
+</body>
+</html>

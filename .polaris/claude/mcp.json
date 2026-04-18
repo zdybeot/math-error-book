@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "polaris-requirements": {
+      "command": "/Users/zzz/Polaris/src-tauri/target/debug/polaris-requirements-mcp",
+      "args": [
+        "/Users/zzz/Library/Application Support/com.polaris.app",
+        "/Users/zzz/Desktop/小项目"
+      ]
+    },
+    "polaris-scheduler": {
+      "command": "/Users/zzz/Polaris/src-tauri/target/debug/polaris-scheduler-mcp",
+      "args": [
+        "/Users/zzz/Library/Application Support/com.polaris.app",
+        "/Users/zzz/Desktop/小项目"
+      ]
+    },
+    "polaris-todo": {
+      "command": "/Users/zzz/Polaris/src-tauri/target/debug/polaris-todo-mcp",
+      "args": [
+        "/Users/zzz/Library/Application Support/com.polaris.app",
+        "/Users/zzz/Desktop/小项目"
+      ]
+    }
+  }
+}
