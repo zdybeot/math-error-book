@@ -28,8 +28,8 @@ export default function HomeScreen() {
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
-            <Text style={styles.title}>错题本</Text>
-            <Text style={styles.subtitle}>四年级下 · 人教版</Text>
+            <Text style={styles.title}>恭喜你，又发现一个新知识</Text>
+            <Text style={styles.subtitle}>错题记录巩固 · 人教版 · 四下</Text>
           </View>
 
           <View style={styles.statsRow}>
