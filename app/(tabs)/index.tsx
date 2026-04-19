@@ -1,10 +1,11 @@
 import React from 'react';
-import { StyleSheet, Text, View, ScrollView, Pressable } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '@/src/theme';
 import { useData } from '@/src/contexts/DataContext';
 import { ErrorCard } from '@/src/components/ErrorCard';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 function formatDate(timestamp: number): string {
   const diff = Date.now() - timestamp;
@@ -46,7 +47,20 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          <TouchableOpacity style={styles.cameraCard} onPress={() => router.push('/camera')}>
+            <Ionicons name="camera" size={32} color={theme.colors.card} />
+            <Text style={styles.cameraText}>拍照录入错题</Text>
+          </TouchableOpacity>
+
           <Text style={styles.sectionLabel}>最近添加</Text>
+
+          {errors.length === 0 && (
+            <View style={styles.emptyState}>
+              <Ionicons name="camera-outline" size={48} color={theme.colors.textSecondary} />
+              <Text style={styles.emptyText}>还没有错题记录</Text>
+              <Text style={styles.emptyHint}>点击上方按钮拍照录入第一道错题</Text>
+            </View>
+          )}
 
           {errors.slice(0, 10).map(error => (
             <ErrorCard
@@ -112,6 +126,22 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     marginTop: 2,
   },
+  cameraCard: {
+    marginHorizontal: theme.spacing.xl,
+    marginBottom: theme.spacing.xxl,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.md,
+    paddingVertical: theme.spacing.xl,
+    backgroundColor: theme.colors.accent,
+    borderRadius: theme.radius.sm,
+  },
+  cameraText: {
+    fontSize: theme.fontSize['3xl'],
+    fontWeight: '600',
+    color: theme.colors.card,
+  },
   sectionLabel: {
     fontSize: theme.fontSize.base,
     fontWeight: '600',
@@ -120,5 +150,19 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: theme.spacing.xxl * 2,
+    gap: theme.spacing.sm,
+  },
+  emptyText: {
+    fontSize: theme.fontSize.xl,
+    color: theme.colors.textSecondary,
+    fontWeight: '500',
+  },
+  emptyHint: {
+    fontSize: theme.fontSize.base,
+    color: theme.colors.textSecondary,
   },
 });

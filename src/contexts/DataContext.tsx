@@ -1,5 +1,21 @@
-import React, { useState, createContext, useContext } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DataState, ErrorEntry, PracticeSession, MasteryStatus, GeneratedQuestion } from '@/src/types';
+
+const STORAGE_KEY = 'math-error-book-data';
+
+// 全局图片暂存（用于页面间传图片 URI）
+let pendingPhotoUri: string | null = null;
+
+export function setPendingPhoto(uri: string | null) {
+  pendingPhotoUri = uri;
+}
+
+export function getPendingPhoto(): string | null {
+  const uri = pendingPhotoUri;
+  pendingPhotoUri = null; // 取完后清空
+  return uri;
+}
 
 // 一些示例数据，用于首次展示
 const sampleErrors: ErrorEntry[] = [
@@ -60,8 +76,50 @@ const sampleErrors: ErrorEntry[] = [
 const DataContext = createContext<DataState | null>(null);
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
-  const [errors, setErrors] = useState<ErrorEntry[]>(sampleErrors);
+  const [errors, setErrors] = useState<ErrorEntry[]>([]);
   const [practiceSessions, setPracticeSessions] = useState<PracticeSession[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  // 加载数据
+  useEffect(() => {
+    loadFromStorage();
+  }, []);
+
+  // 保存数据
+  useEffect(() => {
+    if (loaded) {
+      saveToStorage();
+    }
+  }, [errors, practiceSessions, loaded]);
+
+  const loadFromStorage = async () => {
+    try {
+      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const data = JSON.parse(stored);
+        setErrors(data.errors || sampleErrors);
+        setPracticeSessions(data.practiceSessions || []);
+      } else {
+        // 首次使用，使用示例数据
+        setErrors(sampleErrors);
+      }
+    } catch (e) {
+      console.error('Failed to load data:', e);
+      setErrors(sampleErrors);
+    }
+    setLoaded(true);
+  };
+
+  const saveToStorage = async () => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
+        errors,
+        practiceSessions,
+      }));
+    } catch (e) {
+      console.error('Failed to save data:', e);
+    }
+  };
 
   const addError = (entry: Omit<ErrorEntry, 'id' | 'createdAt'>) => {
     const newError: ErrorEntry = {

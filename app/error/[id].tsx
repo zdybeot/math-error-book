@@ -1,15 +1,17 @@
-import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '@/src/theme';
 import { useData } from '@/src/contexts/DataContext';
+import ZoomableImageModal from '@/components/ZoomableImageModal';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function ErrorDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { errors, updateErrorStatus, deleteError } = useData();
   const error = errors.find(e => e.id === id);
+  const [photoZoom, setPhotoZoom] = useState(false);
 
   if (!error) {
     return (
@@ -48,13 +50,15 @@ export default function ErrorDetailScreen() {
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Photo placeholder */}
-          <View style={styles.photoCard}>
-            <Text style={styles.photoLabel}>原始照片</Text>
-            <View style={styles.photoImage}>
-              <Text style={styles.photoImageText}>点击放大查看</Text>
+          {/* Photo */}
+          {error.photoUri && (
+            <View style={styles.photoCard}>
+              <Text style={styles.photoLabel}>原始照片（点击放大）</Text>
+              <TouchableOpacity activeOpacity={0.7} onPress={() => setPhotoZoom(true)}>
+                <Image source={{ uri: error.photoUri }} style={styles.photoImage} resizeMode="contain" />
+              </TouchableOpacity>
             </View>
-          </View>
+          )}
 
           {/* Question */}
           <View style={styles.card}>
@@ -75,12 +79,14 @@ export default function ErrorDetailScreen() {
           </View>
 
           {/* Steps */}
-          <View style={styles.card}>
-            <Text style={styles.cardLabel}>解题步骤</Text>
-            {error.steps.map((step, i) => (
-              <Text key={i} style={styles.stepText}>{i + 1}. {step}</Text>
-            ))}
-          </View>
+          {error.steps.length > 0 && (
+            <View style={styles.card}>
+              <Text style={styles.cardLabel}>解题步骤</Text>
+              {error.steps.map((step, i) => (
+                <Text key={i} style={styles.stepText}>{i + 1}. {step}</Text>
+              ))}
+            </View>
+          )}
 
           {/* Practice button */}
           <TouchableOpacity
@@ -109,6 +115,13 @@ export default function ErrorDetailScreen() {
           <View style={{ height: theme.spacing.xxl }} />
         </ScrollView>
       </View>
+
+      {/* 照片放大预览 */}
+      <ZoomableImageModal
+        visible={photoZoom}
+        imageUri={error.photoUri}
+        onClose={() => setPhotoZoom(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -130,8 +143,7 @@ const styles = StyleSheet.create({
   navTitle: { fontSize: theme.fontSize['2xl'], fontWeight: '600', flex: 1, marginLeft: theme.spacing.md, textAlign: 'center' },
   photoCard: { padding: theme.spacing.lg },
   photoLabel: { fontSize: theme.fontSize.sm, color: theme.colors.textSecondary, marginBottom: theme.spacing.sm },
-  photoImage: { height: 160, backgroundColor: theme.colors.accentLight, borderRadius: theme.radius.sm, alignItems: 'center', justifyContent: 'center' },
-  photoImageText: { color: theme.colors.textSecondary, fontSize: theme.fontSize.lg },
+  photoImage: { height: 200, backgroundColor: theme.colors.accentLight, borderRadius: theme.radius.sm, width: '100%' },
   card: {
     marginHorizontal: theme.spacing.lg,
     marginBottom: theme.spacing.md,

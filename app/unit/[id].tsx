@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '@/src/theme';
 import { units } from '@/src/data/units';
-import { questionBank, defaultQuestionBank } from '@/src/data/questionBank';
 import { useData } from '@/src/contexts/DataContext';
-import { ErrorCard } from '@/src/components/ErrorCard';
+import ZoomableImageModal from '@/components/ZoomableImageModal';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 function formatDate(timestamp: number): string {
@@ -25,9 +24,7 @@ export default function UnitDetailScreen() {
   const errorCount = unitErrors.length;
   const masteredCount = unitErrors.filter(e => e.status === 'mastered').length;
   const rate = errorCount > 0 ? Math.round((masteredCount / errorCount) * 100) : 0;
-
-  const pool = questionBank[unitId] || defaultQuestionBank;
-  const practiceQuestions = [...pool].sort(() => Math.random() - 0.5).slice(0, 5);
+  const [zoomUri, setZoomUri] = useState<string | null>(null);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -74,15 +71,18 @@ export default function UnitDetailScreen() {
               )}
               {unitErrors.map(error => (
                 <View key={error.id} style={styles.errorCard}>
-                  <View style={styles.errorImagePlaceholder}>
-                    <Text style={styles.errorImageText}>原始照片</Text>
-                  </View>
+                  {error.photoUri ? (
+                    <TouchableOpacity activeOpacity={0.7} onPress={() => setZoomUri(error.photoUri!)}>
+                      <Image source={{ uri: error.photoUri }} style={styles.errorImage} resizeMode="cover" />
+                    </TouchableOpacity>
+                  ) : (
+                    <View style={styles.errorImagePlaceholder}>
+                      <Text style={styles.errorImageText}>无照片</Text>
+                    </View>
+                  )}
                   <View style={styles.errorBody}>
                     <Text style={styles.errorQuestion}>{error.question}</Text>
                     <View style={styles.errorAnswers}>
-                      <Text style={styles.answerText}>
-                        你的答案：<Text style={styles.wrongText}>{error.userAnswer}</Text>
-                      </Text>
                       <Text style={styles.answerText}>
                         正确答案：<Text style={styles.correctText}>{error.correctAnswer}</Text>
                       </Text>
@@ -100,26 +100,41 @@ export default function UnitDetailScreen() {
           )}
 
           {activeTab === 'practice' && (
-            <>
-              {practiceQuestions.map((q, i) => (
-                <TouchableOpacity key={i} style={styles.practiceItem}>
-                  <Text style={styles.practiceType}>同类题型</Text>
-                  <Text style={styles.practiceQuestion}>{q.question}</Text>
-                  <Text style={styles.practiceMeta}>{q.type}</Text>
-                </TouchableOpacity>
-              ))}
-              <TouchableOpacity
-                style={styles.startBtn}
-                onPress={() => router.push(`/practice/${unitId}`)}
-              >
-                <Text style={styles.startBtnText}>开始练习（{practiceQuestions.length}题）</Text>
-              </TouchableOpacity>
-            </>
+            <View style={styles.practiceSection}>
+              {errorCount === 0 ? (
+                <View style={styles.emptyPractice}>
+                  <Ionicons name="document-text-outline" size={40} color={theme.colors.textSecondary} />
+                  <Text style={styles.emptyPracticeText}>暂无错题</Text>
+                  <Text style={styles.emptyPracticeHint}>先添加错题后，AI 才能为你生成相似练习</Text>
+                </View>
+              ) : (
+                <View style={styles.practicePrompt}>
+                  <Ionicons name="bulb-outline" size={48} color={theme.colors.accent} />
+                  <Text style={styles.practiceTitle}>AI 智能出题</Text>
+                  <Text style={styles.practiceDesc}>
+                    根据你录入的 {errorCount} 道错题，AI 将生成 2 道相似练习{'\n'}考查相同知识点，但改变具体数字
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.startBtn}
+                    onPress={() => router.push(`/practice/${unitId}`)}
+                  >
+                    <Text style={styles.startBtnText}>开始练习</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
           )}
 
           <View style={{ height: theme.spacing.xxl }} />
         </ScrollView>
       </View>
+
+      {/* 照片放大预览 */}
+      <ZoomableImageModal
+        visible={!!zoomUri}
+        imageUri={zoomUri}
+        onClose={() => setZoomUri(null)}
+      />
     </SafeAreaView>
   );
 }
@@ -164,8 +179,15 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.sm,
     overflow: 'hidden',
   },
+  errorImage: {
+    height: 120,
+    width: '100%',
+    backgroundColor: theme.colors.accentLight,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
   errorImagePlaceholder: {
-    height: 100,
+    height: 80,
     backgroundColor: theme.colors.accentLight,
     alignItems: 'center',
     justifyContent: 'center',
@@ -191,21 +213,31 @@ const styles = StyleSheet.create({
   errorDate: { fontSize: theme.fontSize.sm, color: theme.colors.textSecondary },
   errorBtn: { paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.xs, borderWidth: 1, borderColor: theme.colors.border, borderRadius: 6 },
   errorBtnText: { fontSize: theme.fontSize.base },
-  practiceItem: {
-    marginHorizontal: theme.spacing.xl,
-    marginBottom: theme.spacing.sm,
-    backgroundColor: theme.colors.card,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radius.sm,
-    padding: theme.spacing.lg,
+  // 练习相关
+  practiceSection: { paddingHorizontal: theme.spacing.lg },
+  emptyPractice: {
+    alignItems: 'center',
+    paddingVertical: theme.spacing.xxl * 2,
+    gap: theme.spacing.sm,
   },
-  practiceType: { fontSize: theme.fontSize.sm, color: theme.colors.textSecondary, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: theme.spacing.sm },
-  practiceQuestion: { fontSize: theme.fontSize.xl, fontWeight: '500', marginBottom: theme.spacing.sm },
-  practiceMeta: { fontSize: theme.fontSize.md, color: theme.colors.textSecondary },
+  emptyPracticeText: { fontSize: theme.fontSize.xl, color: theme.colors.textSecondary, fontWeight: '500' },
+  emptyPracticeHint: { fontSize: theme.fontSize.base, color: theme.colors.textSecondary, textAlign: 'center', lineHeight: 20 },
+  practicePrompt: {
+    alignItems: 'center',
+    paddingVertical: theme.spacing.xxl,
+    gap: theme.spacing.sm,
+  },
+  practiceTitle: { fontSize: theme.fontSize['3xl'], fontWeight: '700', marginTop: theme.spacing.sm },
+  practiceDesc: {
+    fontSize: theme.fontSize.lg,
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginTop: theme.spacing.sm,
+  },
   startBtn: {
-    marginHorizontal: theme.spacing.xl,
-    marginTop: theme.spacing.lg,
+    marginTop: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.xxl * 2,
     paddingVertical: theme.spacing.lg,
     backgroundColor: theme.colors.accent,
     borderRadius: theme.radius.sm,
