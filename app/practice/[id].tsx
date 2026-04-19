@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, ScrollView
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '@/src/theme';
-import { units } from '@/src/data/units';
 import { useData } from '@/src/contexts/DataContext';
 import { generateSimilarQuestions } from '@/src/services/practice';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -11,8 +10,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 export default function PracticeScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const unitId = parseInt(id || '0');
+  const { getErrorsByUnit, units } = useData();
   const unit = units.find(u => u.id === unitId) || units[0];
-  const { getErrorsByUnit } = useData();
 
   const unitErrors = getErrorsByUnit(unitId);
 

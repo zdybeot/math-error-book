@@ -7,15 +7,13 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { theme } from '@/src/theme';
-import { units } from '@/src/data/units';
 import { useData, getPendingPhoto, setPendingPhoto } from '@/src/contexts/DataContext';
 import { ocrMathError, predictUnit } from '@/src/services/ocr';
-import { AI_API_KEY } from '@/src/config/ai';
 import ZoomableImageModal from '@/components/ZoomableImageModal';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function ExtractScreen() {
-  const { addError } = useData();
+  const { addError, currentSemester, units } = useData();
 
   // 从全局状态获取图片 URI
   const initialPhoto = getPendingPhoto();
@@ -35,7 +33,7 @@ export default function ExtractScreen() {
 
   // 有照片时自动识别
   useEffect(() => {
-    if (photoUri && AI_API_KEY && !question) {
+    if (photoUri && !question) {
       handleOcr();
     }
   }, []);
@@ -44,16 +42,11 @@ export default function ExtractScreen() {
   const handleOcr = async () => {
     if (!photoUri) return;
 
-    if (!AI_API_KEY) {
-      setOcrError('未配置 API Key，请在 src/config/ai.ts 中填入');
-      return;
-    }
-
     setOcrLoading(true);
     setOcrError('');
 
     try {
-      const result = await ocrMathError(photoUri, AI_API_KEY);
+      const result = await ocrMathError(photoUri);
       setQuestion(result.question);
       setAnswer(result.correctAnswer);
       setExplanation(result.explanation);
@@ -87,7 +80,7 @@ export default function ExtractScreen() {
       setOcrError('');
       // 重新识别
       setTimeout(() => {
-        if (AI_API_KEY) handleOcr();
+        handleOcr();
       }, 100);
     }
   };
@@ -111,7 +104,7 @@ export default function ExtractScreen() {
       setStepsText('');
       setOcrError('');
       setTimeout(() => {
-        if (AI_API_KEY) handleOcr();
+        handleOcr();
       }, 100);
     }
   };
@@ -125,6 +118,7 @@ export default function ExtractScreen() {
       explanation: explanation.trim(),
       steps: stepsText.split('\n').filter(s => s.trim()),
       photoUri: photoUri,
+      semester: currentSemester,
       unitId: selectedUnit,
       tags: [units.find(u => u.id === selectedUnit)?.name || ''],
       status: 'unmastered',
@@ -204,7 +198,7 @@ export default function ExtractScreen() {
           <View style={styles.card}>
             <View style={styles.cardLabelRow}>
               <Text style={styles.cardLabel}>题目</Text>
-              {photoUri && AI_API_KEY && (
+              {photoUri && (
                 <TouchableOpacity onPress={handleOcr} disabled={ocrLoading}>
                   <Text style={[styles.aiBtn, ocrLoading && styles.aiBtnDisabled]}>
                     AI 识别
@@ -294,7 +288,14 @@ export default function ExtractScreen() {
           visible={photoModalVisible}
           imageUri={photoUri}
           onClose={() => setPhotoModalVisible(false)}
-        />
+        >
+          {(imgProps) => (
+            <Image
+              source={{ uri: photoUri! }}
+              {...imgProps}
+            />
+          )}
+        </ZoomableImageModal>
       </View>
     </SafeAreaView>
   );

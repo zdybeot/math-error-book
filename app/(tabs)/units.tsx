@@ -3,12 +3,12 @@ import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '@/src/theme';
-import { units } from '@/src/data/units';
 import { useData } from '@/src/contexts/DataContext';
 import { UnitCard } from '@/src/components/UnitCard';
 
 export default function UnitsScreen() {
-  const { getErrorsByUnit } = useData();
+  const { getErrorsByUnit, units, currentSemester, availableSemesters } = useData();
+  const currentSem = availableSemesters.find(s => s.id === currentSemester) || availableSemesters[0];
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -16,7 +16,7 @@ export default function UnitsScreen() {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
             <Text style={styles.title}>单元</Text>
-            <Text style={styles.subtitle}>四年级下册 · 人教版</Text>
+            <Text style={styles.subtitle}>{currentSem.label}</Text>
           </View>
 
           {units.map(unit => {

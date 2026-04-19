@@ -1,8 +1,10 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { DataState, ErrorEntry, PracticeSession, MasteryStatus, GeneratedQuestion } from '@/src/types';
+import { DataState, ErrorEntry, PracticeSession, MasteryStatus, GeneratedQuestion, Unit } from '@/src/types';
+import { semesters, DEFAULT_SEMESTER, getUnitsForSemester } from '@/src/data/semesters';
 
 const STORAGE_KEY = 'math-error-book-data';
+const SEMESTER_KEY = 'math-error-book-semester';
 
 // 全局图片暂存（用于页面间传图片 URI）
 let pendingPhotoUri: string | null = null;
@@ -27,6 +29,7 @@ const sampleErrors: ErrorEntry[] = [
     explanation: '运算顺序错误，应该先算括号内再依次计算',
     steps: ['先算括号：240 + 360 = 600', '再算除法：600 / 15 = 40', '最后乘法：40 x 4 = 160'],
     photoUri: null,
+    semester: DEFAULT_SEMESTER,
     unitId: 0,
     tags: ['四则运算'],
     status: 'unmastered',
@@ -40,6 +43,7 @@ const sampleErrors: ErrorEntry[] = [
     explanation: '应该先排出再流入，注意运算顺序',
     steps: ['原有水量 4.5 吨', '排出 1.86 吨后剩 2.64 吨', '流入 2.3 吨后共 4.94 吨'],
     photoUri: null,
+    semester: DEFAULT_SEMESTER,
     unitId: 5,
     tags: ['小数加减'],
     status: 'practicing',
@@ -53,6 +57,7 @@ const sampleErrors: ErrorEntry[] = [
     explanation: '三角形内角和恒为180度',
     steps: ['三角形三个内角之和固定为180度', '已知两个角可以求第三个角'],
     photoUri: null,
+    semester: DEFAULT_SEMESTER,
     unitId: 4,
     tags: ['三角形'],
     status: 'mastered',
@@ -66,6 +71,7 @@ const sampleErrors: ErrorEntry[] = [
     explanation: '假设全是鸡，脚数少了，需要调整',
     steps: ['假设全是鸡：35 x 2 = 70只脚', '实际多 94 - 70 = 24只脚', '每把一只鸡换成兔多2只脚', '需要换 24 / 2 = 12只兔'],
     photoUri: null,
+    semester: DEFAULT_SEMESTER,
     unitId: 8,
     tags: ['鸡兔同笼'],
     status: 'unmastered',
@@ -78,6 +84,7 @@ const DataContext = createContext<DataState | null>(null);
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const [errors, setErrors] = useState<ErrorEntry[]>([]);
   const [practiceSessions, setPracticeSessions] = useState<PracticeSession[]>([]);
+  const [currentSemester, setCurrentSemester] = useState(DEFAULT_SEMESTER);
   const [loaded, setLoaded] = useState(false);
 
   // 加载数据
@@ -97,11 +104,20 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       const stored = await AsyncStorage.getItem(STORAGE_KEY);
       if (stored) {
         const data = JSON.parse(stored);
-        setErrors(data.errors || sampleErrors);
+        // 迁移：旧数据没有 semester 字段，设为默认学期
+        const migratedErrors = (data.errors || sampleErrors).map((e: ErrorEntry) => ({
+          ...e,
+          semester: e.semester || DEFAULT_SEMESTER,
+        }));
+        setErrors(migratedErrors);
         setPracticeSessions(data.practiceSessions || []);
       } else {
-        // 首次使用，使用示例数据
         setErrors(sampleErrors);
+      }
+      // 加载已保存的学期
+      const savedSemester = await AsyncStorage.getItem(SEMESTER_KEY);
+      if (savedSemester) {
+        setCurrentSemester(savedSemester);
       }
     } catch (e) {
       console.error('Failed to load data:', e);
@@ -121,11 +137,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const setSemester = (semesterId: string) => {
+    setCurrentSemester(semesterId);
+    AsyncStorage.setItem(SEMESTER_KEY, semesterId);
+  };
+
   const addError = (entry: Omit<ErrorEntry, 'id' | 'createdAt'>) => {
     const newError: ErrorEntry = {
       ...entry,
       id: Date.now().toString(),
       createdAt: Date.now(),
+      semester: entry.semester || currentSemester,
     };
     setErrors(prev => [newError, ...prev]);
   };
@@ -150,12 +172,30 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   };
 
   const getErrorsByUnit = (unitId: number): ErrorEntry[] => {
-    return errors.filter(e => e.unitId === unitId);
+    return errors.filter(e => e.unitId === unitId && e.semester === currentSemester);
   };
+
+  // 按学期过滤的错题
+  const filteredErrors = errors.filter(e => e.semester === currentSemester);
+
+  // 当前学期的单元
+  const currentUnits = getUnitsForSemester(currentSemester);
 
   return (
     <DataContext.Provider
-      value={{ errors, practiceSessions, addError, updateErrorStatus, deleteError, savePracticeResult, getErrorsByUnit }}
+      value={{
+        errors: filteredErrors,
+        practiceSessions,
+        currentSemester,
+        availableSemesters: semesters,
+        units: currentUnits,
+        setSemester,
+        addError,
+        updateErrorStatus,
+        deleteError,
+        savePracticeResult,
+        getErrorsByUnit,
+      }}
     >
       {children}
     </DataContext.Provider>

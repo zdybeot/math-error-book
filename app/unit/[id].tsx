@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Image } from 'rea
 import { useLocalSearchParams, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '@/src/theme';
-import { units } from '@/src/data/units';
 import { useData } from '@/src/contexts/DataContext';
 import ZoomableImageModal from '@/components/ZoomableImageModal';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -16,8 +15,8 @@ function formatDate(timestamp: number): string {
 export default function UnitDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const unitId = parseInt(id || '0');
+  const { getErrorsByUnit, units } = useData();
   const unit = units.find(u => u.id === unitId) || units[0];
-  const { getErrorsByUnit } = useData();
   const [activeTab, setActiveTab] = useState<'errors' | 'practice'>('errors');
 
   const unitErrors = getErrorsByUnit(unitId);
@@ -130,11 +129,17 @@ export default function UnitDetailScreen() {
       </View>
 
       {/* 照片放大预览 */}
-      <ZoomableImageModal
-        visible={!!zoomUri}
-        imageUri={zoomUri}
-        onClose={() => setZoomUri(null)}
-      />
+      {zoomUri && (
+        <ZoomableImageModal
+          visible={!!zoomUri}
+          imageUri={zoomUri}
+          onClose={() => setZoomUri(null)}
+        >
+          {(imgProps) => (
+            <Image source={{ uri: zoomUri }} {...imgProps} />
+          )}
+        </ZoomableImageModal>
+      )}
     </SafeAreaView>
   );
 }

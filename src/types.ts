@@ -1,6 +1,13 @@
 // 掌握状态
 export type MasteryStatus = 'unmastered' | 'practicing' | 'mastered';
 
+// 学期定义
+export interface Semester {
+  id: string;
+  label: string;
+  subtitle: string;
+}
+
 // 单元定义
 export interface Unit {
   id: number;
@@ -18,6 +25,7 @@ export interface ErrorEntry {
   explanation: string;
   steps: string[];
   photoUri: string | null;
+  semester: string;   // 学期 ID
   unitId: number;
   tags: string[];
   status: MasteryStatus;
@@ -54,6 +62,10 @@ export interface PracticeSession {
 export interface DataState {
   errors: ErrorEntry[];
   practiceSessions: PracticeSession[];
+  currentSemester: string;
+  availableSemesters: Semester[];
+  units: Unit[];
+  setSemester: (semesterId: string) => void;
   addError: (entry: Omit<ErrorEntry, 'id' | 'createdAt'>) => void;
   updateErrorStatus: (id: string, status: MasteryStatus) => void;
   deleteError: (id: string) => void;

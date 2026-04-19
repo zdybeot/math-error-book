@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '@/src/theme';
@@ -17,19 +17,30 @@ function formatDate(timestamp: number): string {
 }
 
 export default function HomeScreen() {
-  const { errors } = useData();
+  const { errors, currentSemester, availableSemesters, setSemester } = useData();
+  const [showSemesterPicker, setShowSemesterPicker] = useState(false);
 
   const total = errors.length;
   const mastered = errors.filter(e => e.status === 'mastered').length;
   const unmastered = total - mastered;
+
+  const currentSem = availableSemesters.find(s => s.id === currentSemester) || availableSemesters[0];
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
+            {/* 学期选择器 */}
+            <TouchableOpacity
+              style={styles.semesterSelector}
+              onPress={() => setShowSemesterPicker(true)}
+            >
+              <Text style={styles.semesterLabel}>{currentSem.label}</Text>
+              <Ionicons name="chevron-down" size={16} color={theme.colors.textSecondary} />
+            </TouchableOpacity>
             <Text style={styles.title}>恭喜你，又发现一个新知识</Text>
-            <Text style={styles.subtitle}>错题记录巩固 · 人教版 · 四下</Text>
+            <Text style={styles.subtitle}>错题记录巩固 · {currentSem.label}</Text>
           </View>
 
           <View style={styles.statsRow}>
@@ -76,6 +87,46 @@ export default function HomeScreen() {
           <View style={{ height: theme.spacing.xxl }} />
         </ScrollView>
       </View>
+
+      {/* 学期选择弹窗 */}
+      <Modal
+        visible={showSemesterPicker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowSemesterPicker(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowSemesterPicker(false)}
+        >
+          <View style={styles.modalContent}>
+            {availableSemesters.map(sem => (
+              <TouchableOpacity
+                key={sem.id}
+                style={[
+                  styles.semesterOption,
+                  sem.id === currentSemester && styles.semesterOptionSelected,
+                ]}
+                onPress={() => {
+                  setSemester(sem.id);
+                  setShowSemesterPicker(false);
+                }}
+              >
+                <Text style={[
+                  styles.semesterOptionText,
+                  sem.id === currentSemester && styles.semesterOptionTextSelected,
+                ]}>
+                  {sem.label}
+                </Text>
+                {sem.id === currentSemester && (
+                  <Ionicons name="checkmark" size={20} color={theme.colors.accent} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -91,6 +142,22 @@ const styles = StyleSheet.create({
   header: {
     padding: theme.spacing.xl,
     paddingTop: theme.spacing.xl,
+  },
+  semesterSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+    backgroundColor: theme.colors.accentLight,
+    borderRadius: 16,
+    marginBottom: theme.spacing.sm,
+  },
+  semesterLabel: {
+    fontSize: theme.fontSize.base,
+    color: theme.colors.text,
+    fontWeight: '500',
+    marginRight: 4,
   },
   title: {
     fontSize: theme.fontSize['5xl'],
@@ -164,5 +231,35 @@ const styles = StyleSheet.create({
   emptyHint: {
     fontSize: theme.fontSize.base,
     color: theme.colors.textSecondary,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: theme.colors.overlay,
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: theme.colors.card,
+    borderTopLeftRadius: theme.radius.sm,
+    borderTopRightRadius: theme.radius.sm,
+    paddingBottom: theme.spacing.xl,
+  },
+  semesterOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.xl,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  semesterOptionSelected: {
+    backgroundColor: theme.colors.accentLight,
+  },
+  semesterOptionText: {
+    fontSize: theme.fontSize.xl,
+    color: theme.colors.text,
+  },
+  semesterOptionTextSelected: {
+    fontWeight: '600',
   },
 });

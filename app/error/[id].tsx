@@ -117,11 +117,17 @@ export default function ErrorDetailScreen() {
       </View>
 
       {/* 照片放大预览 */}
-      <ZoomableImageModal
-        visible={photoZoom}
-        imageUri={error.photoUri}
-        onClose={() => setPhotoZoom(false)}
-      />
+      {error.photoUri && (
+        <ZoomableImageModal
+          visible={photoZoom}
+          imageUri={error.photoUri}
+          onClose={() => setPhotoZoom(false)}
+        >
+          {(imgProps) => (
+            <Image source={{ uri: error.photoUri }} {...imgProps} />
+          )}
+        </ZoomableImageModal>
+      )}
     </SafeAreaView>
   );
 }
