@@ -1,0 +1,8 @@
+{
+  "buildCommand": "echo \"skip build\"",
+  "functions": {
+    "api/*.ts": {
+      "runtime": "nodejs20"
+    }
+  }
+}
