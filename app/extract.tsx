@@ -9,6 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { theme } from '@/src/theme';
 import { useData, getPendingPhoto, setPendingPhoto } from '@/src/contexts/DataContext';
 import { ocrMathError, predictUnit } from '@/src/services/ocr';
+import { AI_API_KEY } from '@/src/config/ai';
 import ZoomableImageModal from '@/components/ZoomableImageModal';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
@@ -46,7 +47,7 @@ export default function ExtractScreen() {
     setOcrError('');
 
     try {
-      const result = await ocrMathError(photoUri);
+      const result = await ocrMathError(photoUri, AI_API_KEY);
       setQuestion(result.question);
       setAnswer(result.correctAnswer);
       setExplanation(result.explanation);

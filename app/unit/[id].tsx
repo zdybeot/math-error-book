@@ -89,9 +89,14 @@ export default function UnitDetailScreen() {
                   </View>
                   <View style={styles.errorFooter}>
                     <Text style={styles.errorDate}>{formatDate(error.createdAt)}</Text>
-                    <TouchableOpacity style={styles.errorBtn} onPress={() => router.push(`/error/${error.id}`)}>
-                      <Text style={styles.errorBtnText}>查看详情</Text>
-                    </TouchableOpacity>
+                    <View style={styles.errorBtns}>
+                      <TouchableOpacity style={styles.practiceBtn} onPress={() => router.push(`/practice/single/${error.id}`)}>
+                        <Text style={styles.practiceBtnText}>延伸练习</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.errorBtn} onPress={() => router.push(`/error/${error.id}`)}>
+                        <Text style={styles.errorBtnText}>查看详情</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
               ))}
@@ -216,6 +221,9 @@ const styles = StyleSheet.create({
     borderTopColor: theme.colors.border,
   },
   errorDate: { fontSize: theme.fontSize.sm, color: theme.colors.textSecondary },
+  errorBtns: { flexDirection: 'row', gap: theme.spacing.sm },
+  practiceBtn: { paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.xs, borderWidth: 1, borderColor: theme.colors.accent, borderRadius: 6, backgroundColor: theme.colors.accent },
+  practiceBtnText: { fontSize: theme.fontSize.base, color: 'white' },
   errorBtn: { paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.xs, borderWidth: 1, borderColor: theme.colors.border, borderRadius: 6 },
   errorBtnText: { fontSize: theme.fontSize.base },
   // 练习相关

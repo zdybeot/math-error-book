@@ -61,7 +61,6 @@ export default function ProfileScreen() {
             <Ionicons name="book" size={32} color={theme.colors.card} />
           </View>
           <Text style={styles.headerTitle}>数学错题本</Text>
-          <Text style={styles.headerSub}>四年级下 · 人教版</Text>
         </View>
 
         {/* 版本信息 */}
@@ -119,7 +118,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerTitle: { fontSize: theme.fontSize['3xl'], fontWeight: '700', marginTop: theme.spacing.md },
-  headerSub: { fontSize: theme.fontSize.base, color: theme.colors.textSecondary, marginTop: 4 },
 
   card: {
     marginHorizontal: theme.spacing.lg,
